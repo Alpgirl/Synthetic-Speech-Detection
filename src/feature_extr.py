@@ -16,14 +16,17 @@ import numpy as np
 
 
 def get_MFCC(waveform, sample_rate):
+    waveform = waveform.cpu()  # Move tensor to CPU
     mfcc = librosa.feature.mfcc(y=waveform.numpy().squeeze(), sr=sample_rate, n_mfcc=20)
     return torch.from_numpy(mfcc)
 
 def get_CQCC(waveform, sample_rate):
+    waveform = waveform.cpu()  # Move tensor to CPU
     cqcc = librosa.feature.chroma_cqt(y=waveform.numpy().squeeze(), sr=sample_rate)
     return torch.from_numpy(cqcc)
 
 def get_LPS(waveform, sample_rate):
+    waveform = waveform.cpu()  # Move tensor to CPU
     stft = librosa.core.stft(waveform.numpy().squeeze())
     lps = librosa.amplitude_to_db(np.abs(stft))
     return torch.from_numpy(lps)
