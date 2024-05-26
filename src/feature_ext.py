@@ -4,17 +4,6 @@ import librosa.feature
 import numpy as np
 
 
-
-# def logpowerspec():
-#     pass
-
-# def MFCC():
-#     pass
-
-# def CQCC():
-#     pass
-
-
 def get_MFCC(waveform, sample_rate):
     waveform = waveform.cpu().numpy()  # Move tensor to CPU and convert to numpy
     batch_size = waveform.shape[0]
