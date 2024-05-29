@@ -8,6 +8,7 @@
 - [Dataset Details](#dataset-details)
 - [Team Members](#team-members)
 - [Repository Structure](#repository-structure)
+- [External Resources](#external-resources)
 
 
 ## Project Overview
@@ -53,3 +54,5 @@ The structure of repository:
 
 Folder ```weights/``` contains weights of trained ResNet18 model on ASVspoof19 dataset, ```src/``` contains all source .py files. The main file ```./Synthetic_Speech_Detection.ipynb``` contains the whole code pipeline for model training and evaluation.
 
+## External Resources
+Check our [presentation]((https://docs.google.com/presentation/d/1PdIR9GtQwtSJnz9GiEeSct4ENkFr4plb/edit?usp=sharing&ouid=102046928035241473077&rtpof=true&sd=true).
