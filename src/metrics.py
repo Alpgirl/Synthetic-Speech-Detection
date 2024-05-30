@@ -1,68 +1,54 @@
 import numpy as np
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
-import pandas as pd
+
+def compute_det_curve(target_scores, nontarget_scores):
+    n_scores = target_scores.size + nontarget_scores.size
+    all_scores = np.concatenate((target_scores, nontarget_scores))
+    labels = np.concatenate((np.ones(target_scores.size), np.zeros(nontarget_scores.size)))
+
+    # Sort labels based on scores
+    indices = np.argsort(all_scores, kind='mergesort')
+    labels = labels[indices]
+
+    # Compute false rejection and false acceptance rates
+    tar_trial_sums = np.cumsum(labels)
+    nontarget_trial_sums = nontarget_scores.size - (np.arange(1, n_scores + 1) - tar_trial_sums)
+
+    frr = np.concatenate((np.atleast_1d(0), tar_trial_sums / target_scores.size))  # false rejection rates
+    far = np.concatenate((np.atleast_1d(1), nontarget_trial_sums / nontarget_scores.size))  # false acceptance rates
+    thresholds = np.concatenate((np.atleast_1d(all_scores[indices[0]] - 0.001), all_scores[indices]))  # Thresholds are the sorted scores
+
+    return frr, far, thresholds
+
+def compute_eer(target_scores, nontarget_scores):
+    """ 
+        Returns equal error rate (EER) and
+        the corresponding threshold. 
+    """
+    frr, far, thresholds = compute_det_curve(target_scores, nontarget_scores)
+    abs_diffs = np.abs(frr - far)
+    min_index = np.argmin(abs_diffs)
+    eer = np.mean((frr[min_index], far[min_index]))
+    return eer, thresholds[min_index]
 
 def plot_roc(true_labels, target_scores):
     """ 
         Function plots ROC curve and calculates AUC 
         for given true_labels and target_scores. 
     """
-    fpr, tpr, threshold = roc_curve(true_labels, target_scores)
+    fpr, tpr, _ = roc_curve(true_labels, target_scores)
     roc_auc = auc(fpr, tpr)
 
-    return fpr, tpr, threshold, roc_auc
-
-def compute_eer(fpr, tpr, threshold):
-    """ 
-        Returns equal error rate (EER) and
-        the corresponding threshold. 
-    """
-    eer = brentq(lambda x: 1. - x - interp1d(fpr, tpr)(x), 0., 1.)
-    thresh = interp1d(fpr, threshold)(eer)
-    return eer
-
-
-def report(eval_asvspoof):
-    """
-        Report results for model
-    """
-    # divide data
-    train_data = [eval_asvspoof["MFCC"][0], eval_asvspoof["CQCC"][0], eval_asvspoof["LPS"][0]]
-    test_data = [eval_asvspoof["MFCC"][1][:-2], eval_asvspoof["CQCC"][1][:-2], eval_asvspoof["LPS"][1][:-2]]
-    test_data_21 = [eval_asvspoof["MFCC"][2][:-2], eval_asvspoof["CQCC"][2][:-2], eval_asvspoof["LPS"][2][:-2]]
-    
-    # Column and index names
-    columns = ['Loss', 'Balanced Accuracy', 'Precision', 'Recall']
-    index = ['MFCC', 'CQCC', 'LPS']
-    
-    # Create DataFrame
-    results_train = pd.DataFrame(train_data, columns=columns, index=index)
-    results_test = pd.DataFrame(test_data, columns=columns, index=index)
-    results_test_21 = pd.DataFrame(test_data_21, columns=columns, index=index)
-
-    print(results_train)
-    print(results_test)
-    print(results_test_21)
-
-    # colors
-    colors = ['darkorange', 'green', 'blue']
-    labels = ['ASVspoof19', 'ASVspoof21']
-    
-    # plot ROC and calculate AUC
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15,8))
+    print(f"ROC_AUC = {roc_auc:.3f}")
+    plt.figure()
     lw = 2
-    colors = ['darkorange', 'green', 'blue']
-    
-    for i in range(1, 3):
-        for j, (key, vals) in enumerate(eval_asvspoof.items()):
-            fpr, tpr, threshold, roc_auc = plot_roc(eval_asvspoof[key][i][5], eval_asvspoof[key][i][4])
-            eer = compute_eer(fpr, tpr, threshold) * 100
-            ax[i - 1].plot(fpr, tpr, color=colors[j], lw=lw, label=f'{key}_ROC curve (area = {roc_auc:.3f}, EER = {int(eer)} %)')
-        ax[i - 1].plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
-        ax[i - 1].set_xlim([0.0, 1.0])
-        ax[i - 1].set_ylim([0.0, 1.05])
-        ax[i - 1].set_xlabel('False Positive Rate')
-        ax[i - 1].set_ylabel('True Positive Rate')
-        ax[i - 1].set_title(f'ROC Curve for Class 1, {labels[i - 1]}')
-        ax[i - 1].legend(loc="lower right")
+    plt.plot(fpr, tpr, color='darkorange', lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
+    plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic Curve for Class 1')
+    plt.legend(loc="lower right")
+    plt.show()
