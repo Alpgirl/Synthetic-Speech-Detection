@@ -30,9 +30,9 @@ We conduct training and evaluation on ASVspoof19 and only evaluation on ASVspoof
 |-------------------|-------------------------|---------------------|
 | Inna Larina       | Project Lead, Developer | [Email](inna.larina@skoltech.ru) |
 | Hernán Nenjer     | Developer               | [Email](hernan.nenjer@skoltech.ru) |
-| Maksim Komiakov   | Developer               | [Email]() |
-| Folu Obidare      | Developer               | [Email]() |
-| Ilona Basset      | Developer               | [Email]() |
+| Maksim Komiakov   | Developer               | [Email](Maksim.Komiakov@skoltech.ru) |
+| Folu Obidare      | Developer               | [Email](Folu.obidare@skoltech.ru) |
+| Ilona Basset      | Developer               | [Email](Ilona.Basset@skoltech.ru) |
 
 ## Repository Structure
 The structure of repository:
